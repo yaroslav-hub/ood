@@ -26,7 +26,7 @@ namespace Shapes.Decorators
             return (int)(2 * Circle.Radius * Math.PI);
         }
 
-        public override void Visit(ShapeVisitor visitor)
+        public override void Accept(ShapeVisitor visitor)
         {
             visitor.Visit(this);
         }

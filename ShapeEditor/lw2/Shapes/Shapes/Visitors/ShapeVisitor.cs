@@ -13,7 +13,6 @@ namespace Shapes.Visitors
             _outputFileStream = outputStream;
         }
 
-        public abstract void Visit(ShapeDecorator shapeDecorator);
         public abstract void Visit(TriangleDecorator triangleDecorator);
         public abstract void Visit(RectangleDecorator rectangleDecorator);
         public abstract void Visit(CircleDecorator circleDecorator);

@@ -45,7 +45,7 @@ namespace Shapes.Decorators
                 + GetSideLength(firstPointVector, thirdPointVector));
         }
 
-        public override void Visit(ShapeVisitor visitor)
+        public override void Accept(ShapeVisitor visitor)
         {
             visitor.Visit(this);
         }

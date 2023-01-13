@@ -14,24 +14,6 @@ namespace Shapes.Visitors
         public ShapeDescriptionVisitor(StreamWriter outputStream) 
             : base(outputStream) { }
 
-        public override void Visit(ShapeDecorator shapeDecorator)
-        {
-            Type type = shapeDecorator.GetType();
-
-            if (type == typeof(TriangleDecorator))
-            {
-                Visit((TriangleDecorator)shapeDecorator);
-            } 
-            else if (type == typeof(RectangleDecorator))
-            {
-                Visit((RectangleDecorator)shapeDecorator);
-            }
-            else if (type == typeof(CircleDecorator))
-            {
-                Visit((CircleDecorator)shapeDecorator);
-            }
-        }
-
         public override void Visit(TriangleDecorator triangleDecorator)
         {
             DisplayShapeDescription(TriangleShapeType, triangleDecorator.GetArea(), triangleDecorator.GetPerimeter());

@@ -17,7 +17,7 @@ namespace Shapes.Decorators
 
         public abstract int GetArea();
         public abstract int GetPerimeter();
-        public abstract void Visit(ShapeVisitor visitor);
+        public abstract void Accept(ShapeVisitor visitor);
         
         public override uint GetPointCount()
         {

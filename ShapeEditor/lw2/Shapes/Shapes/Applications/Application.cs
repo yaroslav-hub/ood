@@ -72,7 +72,7 @@ namespace Shapes.Applications
                 .ToList();
             foreach (ShapeDecorator shape in shapes)
             {
-                shape.Visit(descriptionVisitor);
+                shape.Accept(descriptionVisitor);
             }
         }
 

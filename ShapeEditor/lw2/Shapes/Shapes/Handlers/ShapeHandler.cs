@@ -97,8 +97,6 @@ namespace Shapes.Handlers
                     _selectedShapesGroup.Remove(group);
                 }
             }
-
-
         }
 
         public void MoveShapes(int moveX, int moveY)

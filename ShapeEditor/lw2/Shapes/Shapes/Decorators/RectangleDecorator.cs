@@ -25,7 +25,7 @@ namespace Shapes.Decorators
             return 2 * (int)(Rectangle.Size.Y + Rectangle.Size.X);
         }
 
-        public override void Visit(ShapeVisitor visitor)
+        public override void Accept(ShapeVisitor visitor)
         {
             visitor.Visit(this);
         }

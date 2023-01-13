@@ -49,9 +49,9 @@ namespace Shapes.Compounds
             throw new NotImplementedException();
         }
 
-        public override void Visit(ShapeVisitor visitor)
+        public override void Accept(ShapeVisitor visitor)
         {
-            _shapes.ForEach(x => visitor.Visit(x));
+            _shapes.ForEach(x => x.Accept(visitor));
         }
 
         public override void Move(int moveX, int moveY)
