@@ -59,6 +59,21 @@ namespace Shapes.Compounds
             _shapes.ForEach(x => x.Move(moveX, moveY));
         }
 
+        public override void SetFillColor(Color color)
+        {
+            _shapes.ForEach(x => x.SetFillColor(color));
+        }
+
+        public override void SetOutlineColor(Color color)
+        {
+            _shapes.ForEach(x => x.SetOutlineColor(color));
+        }
+
+        public override void SetOutlineThickness(int thickness)
+        {
+            _shapes.ForEach(x => x.SetOutlineThickness(thickness));
+        }
+
         public override void Draw(RenderWindow window)
         {
             _shapes.ForEach(x => x.Draw(window));

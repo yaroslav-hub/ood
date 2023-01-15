@@ -17,7 +17,7 @@ namespace Shapes.Handlers
             _selectedShapesGroup = selectedShapesGroup;
         }
 
-        public abstract void DrawShapes( RenderWindow window );
+        public abstract void Draw( RenderWindow window );
 
         public void AddShape( ShapeDecorator shape )
         {
@@ -29,32 +29,13 @@ namespace Shapes.Handlers
             _shapesGroup.Add( shape );
         }
 
-        public void SelectShape( ShapeDecorator shape )
+        public ShapeDecorator GetActivatedShape( int mouseX, int mouseY )
         {
-            if ( !_shapesGroup.Shapes.Contains( shape ) || _selectedShapesGroup.Shapes.Contains( shape ) )
-            {
-                if ( shape == null )
-                {
-                    UnselectAll();
-                }
-                else
-                {
-                    UnselectShape( shape );
-                }
-                return;
-            }
-
-            _shapesGroup.Remove( shape );
-            _selectedShapesGroup.Add( shape );
+            return _selectedShapesGroup.Shapes.LastOrDefault( x => x.GetGlobalBounds().Contains( mouseX, mouseY ) )
+                ?? _shapesGroup.Shapes.LastOrDefault( x => x.GetGlobalBounds().Contains( mouseX, mouseY ) );
         }
 
-        public void ForceSelectShape( ShapeDecorator shape )
-        {
-            UnselectAll();
-            SelectShape( shape );
-        }
-
-        public void UnselectShape( ShapeDecorator shape )
+        protected void Unselect( ShapeDecorator shape )
         {
             if ( _shapesGroup.Shapes.Contains( shape ) || !_selectedShapesGroup.Shapes.Contains( shape ) )
             {
@@ -65,16 +46,29 @@ namespace Shapes.Handlers
             _shapesGroup.Add( shape );
         }
 
-        public ShapeDecorator GetActiveShape( int mouseX, int mouseY )
+        protected void Select( ShapeDecorator shape )
         {
-            return _selectedShapesGroup.Shapes.LastOrDefault( x => x.GetGlobalBounds().Contains( mouseX, mouseY ) )
-                ?? _shapesGroup.Shapes.LastOrDefault( x => x.GetGlobalBounds().Contains( mouseX, mouseY ) );
+            if ( !_shapesGroup.Shapes.Contains( shape ) || _selectedShapesGroup.Shapes.Contains( shape ) )
+            {
+                if ( shape == null )
+                {
+                    UnselectAll();
+                }
+                else
+                {
+                    Unselect( shape );
+                }
+                return;
+            }
+
+            _shapesGroup.Remove( shape );
+            _selectedShapesGroup.Add( shape );
         }
 
-        protected void UnselectAll()
+        public void UnselectAll()
         {
             List<ShapeDecorator> selectedShapes = _selectedShapesGroup.Shapes.ToList();
-            selectedShapes.ForEach( x => UnselectShape( x ) );
+            selectedShapes.ForEach( x => Unselect( x ) );
         }
     }
 }

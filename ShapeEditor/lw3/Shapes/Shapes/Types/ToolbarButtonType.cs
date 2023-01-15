@@ -2,8 +2,10 @@
 {
     public enum ToolbarButtonType
     {
+        DragAndDrop,
         AddShape,
-        RemoveShape,
-        SetShapeFillColor
+        ChangeOutlineColor,
+        ChangeFillColor,
+        ChangeOutlineThickness
     }
 }

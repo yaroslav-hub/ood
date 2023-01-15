@@ -1,19 +1,18 @@
 ﻿using SFML.Graphics;
 using SFML.Window;
 using Shapes.Applications;
+using Shapes.Types;
 using System.IO;
 
 namespace Shapes
 {
     class Program
     {
-        private const string DefaultInputFileName = "input.txt";
-        private const string DefaultOutputFileName = "output.txt";
 
         static void Main(string[] args)
         {
-            StreamReader inputFileStream = new(DefaultInputFileName);
-            StreamWriter outputFileStream = new(DefaultOutputFileName);
+            StreamReader inputFileStream = DefaultFiles.Input;
+            StreamWriter outputFileStream = DefaultFiles.Output;
             RenderWindow window = new(new VideoMode(1000, 1000), "Shapes");
 
             Application application = new(window, inputFileStream, outputFileStream);

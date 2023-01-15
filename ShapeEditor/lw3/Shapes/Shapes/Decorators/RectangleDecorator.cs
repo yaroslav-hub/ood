@@ -4,9 +4,9 @@ using Shapes.Visitors;
 
 namespace Shapes.Decorators
 {
-    public sealed class RectangleDecorator : ShapeDecorator
+    public class RectangleDecorator : ShapeDecorator
     {
-        private RectangleShape Rectangle => (RectangleShape)_shape;
+        protected RectangleShape Rectangle => (RectangleShape)_shape;
 
         public Vector2f Size => Rectangle.Size;
 

@@ -1,6 +1,7 @@
 ﻿using SFML.Graphics;
 using SFML.System;
 using Shapes.Visitors;
+using System;
 
 namespace Shapes.Decorators
 {
@@ -57,7 +58,7 @@ namespace Shapes.Decorators
             window.Draw(_shape);
         }
 
-        public new virtual FloatRect GetGlobalBounds()
+        public virtual FloatRect GetGlobalBounds()
         {
             return _shape.GetGlobalBounds();
         }

@@ -1,14 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using SFML.Graphics;
+﻿using SFML.Graphics;
 using SFML.System;
 using SFML.Window;
 using Shapes.Decorators;
 using Shapes.Factories;
 using Shapes.Handlers;
+using Shapes.State;
+using Shapes.Types;
 using Shapes.Visitors;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 
 namespace Shapes.Applications
 {
@@ -17,72 +19,94 @@ namespace Shapes.Applications
         private readonly RenderWindow _window;
         private readonly StreamReader _input;
         private readonly StreamWriter _output;
+        private readonly ToolbarHandler _toolbarHandler;
+        private readonly CanvasHandler _canvasHandler;
+
+        private readonly DragAndDropState _dragAndDropState;
+        private readonly AddShapeState _addShapeState;
+        private readonly ChangeFillColorState _changeFillColorState;
+        private readonly ChangeOutlineColorState _changeOutlineColorState;
+        private readonly ChangeOutlineThicknessState _changeOutlineThicknessState;
         private Vector2f _clickMousePosition;
+        private IState _state;
 
-        private static CanvasHandler CanvasHandler => CanvasHandler.Instance;
-        private static ToolbarHandler ToolbarHandler => ToolbarHandler.Instance;
-        private static readonly Color BackgroundColor = new( 30, 30, 32 );
+        public CanvasHandler CanvasHandler => _canvasHandler;
+        public ToolbarHandler ToolbarHandler => _toolbarHandler;
+        public Vector2f ClickMousePosition => _clickMousePosition;
 
-        public Application( RenderWindow window, StreamReader input, StreamWriter output )
+        public Application(RenderWindow window, StreamReader input, StreamWriter output)
         {
+
+            _input = input;
+            _output = output;
+
+            _dragAndDropState = new DragAndDropState(this);
+            _addShapeState = new AddShapeState(this);
+            _changeFillColorState = new ChangeFillColorState(this);
+            _changeOutlineColorState = new ChangeOutlineColorState(this);
+            _changeOutlineThicknessState = new ChangeOutlineThicknessState(this);
+            
+            _toolbarHandler = new ToolbarHandler(
+                SetDragAndDropState,
+                SetAddShapeState,
+                SetChangeFillColorState,
+                SetChangeOutlineColorState,
+                SetChangeOutlineThicknessState);
+            _canvasHandler = new CanvasHandler();
+
             _window = window;
             _window.Closed += WindowClosed;
             _window.MouseButtonPressed += WindowMousePressed;
             _window.KeyPressed += WindowKeyPressed;
             _window.MouseMoved += WindowMouseMoved;
 
-            _input = input;
-            _output = output;
-
             _clickMousePosition = new Vector2f();
         }
 
         public void ReadDefaultShapes()
         {
-            while ( !_input.EndOfStream )
+            while (!_input.EndOfStream)
             {
                 List<string> shapeParams = _input
                     .ReadLine()
-                    .Split( " " )
-                    .Where( s => !string.IsNullOrEmpty( s ) )
+                    .Split(" ")
+                    .Where(s => !string.IsNullOrEmpty(s))
                     .ToList();
-                if ( shapeParams.Count == 0 )
+                if (shapeParams.Count == 0 || !Enum.TryParse(shapeParams[0], true, out ShapeType shapeType))
                 {
                     continue;
                 }
 
-                string shapeType = shapeParams[ 0 ].ToUpper();
-                shapeParams.RemoveAt( 0 );
-
+                shapeParams.RemoveAt(0);
                 ShapeDecorator shape = shapeType switch
                 {
-                    "TRIANGLE" => ShapeDecoratorFactory.GetTriangleDecorator( shapeParams ),
-                    "RECTANGLE" => ShapeDecoratorFactory.GetRectangleDecorator( shapeParams ),
-                    "CIRCLE" => ShapeDecoratorFactory.GetCircleDecorator( shapeParams ),
-                    _ => throw new ArgumentOutOfRangeException( $"Unknown shape type: {shapeType}" ),
+                    ShapeType.Triangle => ShapeDecoratorFactory.GetTriangleDecorator(shapeParams),
+                    ShapeType.Rectangle => ShapeDecoratorFactory.GetRectangleDecorator(shapeParams),
+                    ShapeType.Circle => ShapeDecoratorFactory.GetCircleDecorator(shapeParams),
+                    _ => throw new ArgumentOutOfRangeException($"Unknown shape type: {shapeType}")
                 };
-                CanvasHandler.AddShape( shape );
+                CanvasHandler.AddShape(shape);
             }
         }
 
         public void PrintShapesInfo()
         {
-            ShapeDescriptionVisitor descriptionVisitor = new( _output );
+            ShapeDescriptionVisitor descriptionVisitor = new(_output);
             List<ShapeDecorator> shapes = CanvasHandler.Shapes
-                .Concat( CanvasHandler.SelectedShapes )
+                .Concat(CanvasHandler.SelectedShapes)
                 .ToList();
-            foreach ( ShapeDecorator shape in shapes )
+            foreach (ShapeDecorator shape in shapes)
             {
-                shape.Accept( descriptionVisitor );
+                shape.Accept(descriptionVisitor);
             }
         }
 
         public void ProcessWindow()
         {
-            while ( _window.IsOpen )
+            while (_window.IsOpen)
             {
                 _window.DispatchEvents();
-                _window.Clear( BackgroundColor );
+                _window.Clear(DefaultColors.BlueDark);
 
                 DrawApplication();
 
@@ -92,74 +116,79 @@ namespace Shapes.Applications
 
         private void DrawApplication()
         {
-            CanvasHandler.DrawShapes( _window );
-            ToolbarHandler.DrawShapes( _window );
+            CanvasHandler.Draw(_window);
+            ToolbarHandler.Draw(_window);
         }
 
-        private void WindowClosed( object sender, EventArgs e )
+        private void WindowClosed(object sender, EventArgs e)
         {
             _window.Close();
         }
 
-        private void WindowMousePressed( object sender, MouseButtonEventArgs e )
+        private void WindowMousePressed(object sender, MouseButtonEventArgs e)
         {
-            switch ( e.Button )
+            switch (e.Button)
             {
                 case Mouse.Button.Left:
-                    _clickMousePosition.X = e.X;
-                    _clickMousePosition.Y = e.Y;
+                    int mouseX = e.X;
+                    int mouseY = e.Y;
+                    _clickMousePosition.X = mouseX;
+                    _clickMousePosition.Y = mouseY;
 
-                    ShapeDecorator activeShape = CanvasHandler.GetActiveShape( e.X, e.Y );
-                    if ( Keyboard.IsKeyPressed( Keyboard.Key.LShift ) )
+                    if (ToolbarHandler.HandleClick(mouseX, mouseY))
                     {
-                        CanvasHandler.SelectShape( activeShape );
+                        return;
                     }
-                    else
-                    {
-                        if ( !CanvasHandler.SelectedShapes.Contains( activeShape ) )
-                        {
-                            CanvasHandler.ForceSelectShape( activeShape );
-                        }
-                    }
+
+                    _state.SimpleClick(new Vector2f(e.X, e.Y));
                     break;
                 default:
                     return;
             }
         }
 
-        private void WindowKeyPressed( object sender, KeyEventArgs e )
+        private void WindowKeyPressed(object sender, KeyEventArgs e)
         {
-            switch ( e.Code )
+            switch (e.Code)
             {
                 case Keyboard.Key.G:
-                    if ( Keyboard.IsKeyPressed( Keyboard.Key.LControl ) )
-                    {
-                        CanvasHandler.GroupShapes();
-                    }
+                    _state.PressedKeyG();
                     break;
                 case Keyboard.Key.U:
-                    if ( Keyboard.IsKeyPressed( Keyboard.Key.LControl ) )
-                    {
-                        CanvasHandler.UngroupShapes();
-                    }
+                    _state.PressedKeyU();
                     break;
                 default:
                     return;
             }
         }
 
-        private void WindowMouseMoved( object sender, MouseMoveEventArgs e )
+        private void WindowMouseMoved(object sender, MouseMoveEventArgs e)
         {
-            ShapeDecorator activeShape = CanvasHandler.GetActiveShape( e.X, e.Y );
-            if ( Mouse.IsButtonPressed( Mouse.Button.Left ) && CanvasHandler.SelectedShapes.Contains( activeShape ) )
-            {
-                int moveX = ( int )( e.X - _clickMousePosition.X );
-                int moveY = ( int )( e.Y - _clickMousePosition.Y );
-                CanvasHandler.MoveShapes( moveX, moveY );
-
-                _clickMousePosition.X += moveX;
-                _clickMousePosition.Y += moveY;
-            }
+            _state.MouseMoved(new Vector2f(e.X, e.Y));
         }
+
+        private void SetDragAndDropState() => _state = _dragAndDropState;
+        private void SetAddShapeState()
+        {
+            _state = _addShapeState;
+            CanvasHandler.UnselectAll();
+        }
+        private void SetChangeOutlineColorState()
+        {
+            _state = _changeOutlineColorState;
+            CanvasHandler.UnselectAll();
+        }
+        private void SetChangeFillColorState()
+        {
+            _state = _changeFillColorState;
+            CanvasHandler.UnselectAll();
+        }
+        private void SetChangeOutlineThicknessState()
+        {
+            _state = _changeOutlineThicknessState;
+            CanvasHandler.UnselectAll();
+        }
+
+        public void SetClickMousePosition(Vector2f position) => _clickMousePosition = position;
     }
 }

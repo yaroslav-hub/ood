@@ -2,6 +2,7 @@
 using SFML.System;
 using Shapes.Compounds;
 using Shapes.Decorators;
+using Shapes.Types;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -24,9 +25,9 @@ namespace Shapes.Factories
         {
             return GetTriangle(new List<Tuple<int, int>>()
             {
-                Tuple.Create(50, 50),
-                Tuple.Create(150, 150),
-                Tuple.Create(250, 50)
+                Tuple.Create(0, 0),
+                Tuple.Create(100, 100),
+                Tuple.Create(200, 0)
             });
         }
 
@@ -44,8 +45,8 @@ namespace Shapes.Factories
         {
             return GetRectangle(new List<Tuple<int, int>>()
             {
-                Tuple.Create(50, 50),
-                Tuple.Create(150, 150)
+                Tuple.Create(0, 0),
+                Tuple.Create(100, 100)
             });
         }
 
@@ -63,7 +64,7 @@ namespace Shapes.Factories
 
         public static CircleDecorator GetCircleDecorator()
         {
-            return GetCircle(Tuple.Create(100, 100), 50);
+            return GetCircle(Tuple.Create(0, 0), 50);
         }
 
         public static ShapeDecoratorGroup GetShapeDecoratorGroup()
@@ -87,7 +88,7 @@ namespace Shapes.Factories
                 triangle.SetPoint(pointCount, new Vector2f(pair.Item1, pair.Item2));
             }
 
-            triangle.SetFillColor(new Color(161, 133, 148));
+            triangle.SetFillColor(DefaultColors.Violet);
 
             return triangle;
         }
@@ -101,7 +102,7 @@ namespace Shapes.Factories
             rectangle.SetSize(new Vector2f(
                 coordinates[1].Item1 - coordinates[0].Item1,
                 coordinates[1].Item2 - coordinates[0].Item2));
-            rectangle.SetFillColor(new Color(255, 140, 105));
+            rectangle.SetFillColor(DefaultColors.Orange);
 
             return rectangle;
         }
@@ -112,7 +113,7 @@ namespace Shapes.Factories
             circle.SetRadius(radius);
 
             circle.SetPosition(new Vector2f(coordinates.Item1, coordinates.Item2));
-            circle.SetFillColor(new Color(168, 228, 160));
+            circle.SetFillColor(DefaultColors.Green);
 
             return circle;
         }
