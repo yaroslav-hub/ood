@@ -3,6 +3,7 @@ using SFML.System;
 using Shapes.Compounds;
 using Shapes.Decorators;
 using Shapes.Factories;
+using Shapes.Iterators;
 using Shapes.Types;
 using System;
 using System.Collections.Generic;
@@ -19,27 +20,27 @@ namespace Shapes.Handlers
         private readonly Action _setChangeOutlineThicknessStateAction;
         private readonly Action _undoAction;
 
-        private readonly DefaultsList<Color> _outlineColors
+        private readonly DefaultsListIterator<Color> _outlineColors
             = new(new List<Color>()
             {
                 DefaultColors.Blue,
                 DefaultColors.Red
             });
-        private readonly DefaultsList<Color> _fillColors
+        private readonly DefaultsListIterator<Color> _fillColors
             = new(new List<Color>()
             {
                 DefaultColors.Green,
                 DefaultColors.Orange,
                 DefaultColors.Violet
             });
-        private readonly DefaultsList<int> _outlineThicknesses
+        private readonly DefaultsListIterator<int> _outlineThicknesses
             = new(new List<int>()
             {
                 1,
                 2,
                 3
             });
-        private readonly DefaultsList<int> _addShapeType
+        private readonly DefaultsListIterator<int> _addShapeType
             = new(new List<int>()
             {
                 (int)ShapeType.Triangle,

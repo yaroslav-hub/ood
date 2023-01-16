@@ -2,14 +2,14 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Shapes.Decorators
+namespace Shapes.Iterators
 {
-    public sealed class DefaultsList<T> where T : IEquatable<T>
+    public sealed class DefaultsListIterator<T> where T : IEquatable<T>
     {
         private readonly List<T> _items;
         private T _currentItem;
 
-        public DefaultsList(List<T> items)
+        public DefaultsListIterator(List<T> items)
         {
             if (items.Count == 0)
             {
@@ -29,7 +29,7 @@ namespace Shapes.Decorators
         {
             int nextIndex = _items.IndexOf(_currentItem) + 1;
 
-            _currentItem = (nextIndex == _items.Count)
+            _currentItem = nextIndex == _items.Count
                 ? _items[0]
                 : _items[nextIndex];
         }
